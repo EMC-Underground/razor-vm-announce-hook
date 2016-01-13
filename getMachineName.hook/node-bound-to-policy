@@ -1,0 +1,49 @@
+#!/usr/bin/env ruby
+require 'json'
+require 'net/http'
+
+input = STDIN.read
+STDIN.close_read
+
+input = JSON.parse(input)
+config = input['hook']['configuration']
+policy = input['policy']['name']
+uuid = input['node']['facts']['uuid']
+
+if config['counter'].to_i.to_s != config['counter'].to_s
+  puts({ 'error' => "Hook configuration `counter` must be an integer (was: #{config['counter']})" }.to_json)
+  exit 1
+elsif policy != config['policy']
+  output = {'output' => "No match for policy '#{policy}' found in hook; skipping"}
+else
+  policy_counter = config['counter'].to_i
+  next_policy_counter = policy_counter + 1
+  # This could just as easily call an external system to retrieve the node's
+  # hostname.
+
+  url = URI("http://labapi.bellevuelab.isus.emc.com/vms/'#{uuid}'/name/)
+  req = Net::HTTP::Get.new url.path
+  res = Net::HTTP.start(url.host, url.port) {|http|
+    http.request(req)
+  }
+  new_hostname = res.body
+
+  output = {
+      'node' => {
+          'metadata' => {
+              'update' => {
+                  'hostname' => new_hostname
+              }
+          }
+      },
+      'hook' => {
+          'configuration' => {
+              'update' => {
+                  'counter' => next_policy_counter
+              }
+          }
+      }
+  }
+end
+
+puts output.to_json
