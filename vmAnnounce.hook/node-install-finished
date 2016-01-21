@@ -33,7 +33,7 @@ else
   # end
 
   # Send packet to hubot
-  JSON.parse(RestClient::Request.execute( method: :post, url: api_url, verify_ssl: false, payload: api_payload, headers: { content_type: 'application/json', accept: :json}))
+  req = RestClient::Request.execute( method: :post, url: api_url, verify_ssl: false, payload: api_payload, headers: { content_type: 'application/json'})
 
   output = {
       'hook' => {
