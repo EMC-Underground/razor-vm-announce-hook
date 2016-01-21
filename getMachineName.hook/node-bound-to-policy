@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 require 'json'
 require 'net/http'
+require 'rest_client'
 
 input = STDIN.read
 STDIN.close_read
@@ -21,12 +22,8 @@ else
   # This could just as easily call an external system to retrieve the node's
   # hostname.
 
-  url = URI("http://labapi.bellevuelab.isus.emc.com/vms/'#{uuid}'/name/)
-  req = Net::HTTP::Get.new url.path
-  res = Net::HTTP.start(url.host, url.port) {|http|
-    http.request(req)
-  }
-  new_hostname = res.body
+  api_url = "http://labapi.bellevuelab.isus.emc.com/vms/#{uuid}/name/"
+  new_hostname = RestClient::Request.execute(method: :get, url: api_url, verify_ssl: false)
 
   output = {
       'node' => {
