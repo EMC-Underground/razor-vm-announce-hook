@@ -8,9 +8,9 @@ STDIN.close_read
 
 input = JSON.parse(input)
 config = input['hook']['configuration']
-policy = input['policy']['name']
 username = input['node']['facts']['user']
 ipaddress = input['node']['facts']['ipaddress_eno16777984']
+policy = input['policy']['name']
 
 if config['counter'].to_i.to_s != config['counter'].to_s
   puts({ 'error' => "Hook configuration `counter` must be an integer (was: #{config['counter']})" }.to_json)
@@ -25,11 +25,11 @@ else
 
   uri = URI('http://commander.bellevuelab.isus.emc.com/hubot/vm/complete')
   req = Net::HTTP::Post.new uri.path
-  req.body = {:user => username, :ipaddr => ipaddress}.to_json
+  req.body = {:user => '#{username}', :ipaddr => '#{ipaddress}'}.to_json
 
-  res = Net::HTTP.start(uri.host, uri.port){|http|
-    http.request(req)
-  }
+  res = Net::HTTP.start(uri.host, uri.port) do |http|
+    http.request req
+  end
 
   output = {
       'hook' => {
