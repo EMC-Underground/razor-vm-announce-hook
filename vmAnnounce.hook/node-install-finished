@@ -2,6 +2,7 @@
 require 'json'
 require 'net/http'
 require 'uri'
+require 'rest_client'
 
 input = STDIN.read
 STDIN.close_read
@@ -23,13 +24,16 @@ else
   # This could just as easily call an external system to retrieve the node's
   # hostname0.
 
-  uri = URI('http://commander.bellevuelab.isus.emc.com/hubot/vm/complete')
-  req = Net::HTTP::Post.new uri.path
-  req.body = {:user => '#{username}', :ipaddr => '#{ipaddress}'}.to_json
+  api_url = "http://commander.bellevuelab.isus.emc.com/hubot/vm/complete"
+  # req = Net::HTTP::Post.new uri.path
+  api_payload = {"user" => username, "ipaddr" => ipaddress}
 
-  res = Net::HTTP.start(uri.host, uri.port) do |http|
-    http.request req
-  end
+  # res = Net::HTTP.start(uri.host, uri.port) do |http|
+  #   http.request req
+  # end
+
+  # Send packet to hubot
+  JSON.parse(RestClient::Request.execute( method: :post, url: api_url, verify_ssl: false, payload: api_payload, headers: { content_type: 'application/json', accept: :json}))
 
   output = {
       'hook' => {
