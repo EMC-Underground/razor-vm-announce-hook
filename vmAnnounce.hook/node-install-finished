@@ -27,7 +27,7 @@ else
   req = Net::HTTP::Post.new uri.path
   req.body = {:user => username, :ipaddr => ipaddress}.to_json
 
-  res - Net::HTTP.start(uri.host, uri.port){|http|
+  res = Net::HTTP.start(uri.host, uri.port){|http|
     http.request(req)
   }
 
