@@ -3,7 +3,17 @@ policy:
   description: "The name of the policy"
   required: true
 
-counter:
-  description: "The number of nodes on the policy"
-  default: 1
+nodes_booting:
+  description: "The number of nodes booting"
+  default: 0
+  required: true
+
+nodes_finished:
+  description: "The number of nodes completed"
+  default: 0
+  required: true
+  
+nodes_registered:
+  decription: "The number of nodes register"
+  default: 0
   required: true
