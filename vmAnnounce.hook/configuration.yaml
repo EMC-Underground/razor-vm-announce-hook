@@ -3,8 +3,8 @@ policy:
   description: "The name of the policy"
   required: true
 
-nodes_booting:
-  description: "The number of nodes booting"
+nodes_installed:
+  description: "The number of nodes with an installed OS"
   default: 0
   required: true
 
@@ -12,8 +12,4 @@ nodes_finished:
   description: "The number of nodes completed"
   default: 0
   required: true
-  
-nodes_registered:
-  decription: "The number of nodes register"
-  default: 0
-  required: true
+
