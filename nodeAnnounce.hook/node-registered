@@ -18,13 +18,25 @@ else
   # This could just as easily call an external system to retrieve the node's
   # hostname0.
 
-  api_url = "http://commander.bellevuelab.isus.emc.com/hubot/vm/status"
+  api_url = "http://commander.bellevuelab.isus.emc.com/hubot/node/status"
   # req = Net::HTTP::Post.new uri.path
-  api_payload = {"status" => "We have found a new vm. It was created by @#{username}."}
-
-  # res = Net::HTTP.start(uri.host, uri.port) do |http|
-  #   http.request req
-  # end
+  if config['node-type'] == "physical"
+    # Set payload to physcial stats
+    # user
+    # status
+    # nodeState
+  elsif config['node-type'] == "virtual"
+    # Set payload to virtual stats
+    # user
+    # status
+    # nodeState
+  else
+    # Bad node type, send out error
+    puts({ 'error' => " Hook configuration `node-type` is invalid type; must be either physical or virtual" }.to_json)
+    exit 1
+  
+  # Build packet
+  api_payload = {"user" => user, "status" => status, "state" => nodeState, "node-type" => config['node-type']}
 
   # Send packet to hubot
   req = RestClient::Request.execute( method: :post, url: api_url, verify_ssl: false, payload: api_payload, headers: { content_type: 'application/json'})
