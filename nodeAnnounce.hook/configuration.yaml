@@ -1,0 +1,19 @@
+---
+node-type:
+  description: "Either physical or virtual"
+  required: true
+
+nodes_installed:
+  description: "The number of nodes with an installed OS"
+  default: 0
+  required: true
+
+nodes_bound:
+  description: "The number of nodes bound"
+  default: 0
+  required: true
+
+nodes_registered:
+  description: "The numbers of nodes registered"
+  default: 0
+  required: true

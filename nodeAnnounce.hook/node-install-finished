@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
 require 'json'
+require 'net/http'
+require 'uri'
 require 'rest_client'
 
 input = STDIN.read
@@ -8,19 +10,23 @@ STDIN.close_read
 input = JSON.parse(input)
 config = input['hook']['configuration']
 username = input['node']['facts']['user']
+ipaddress = input['node']['facts']['ipaddress_eno16777984']
+policy = input['policy']['name']
 
-if config['nodes_registered'].to_i.to_s != config['nodes_registered'].to_s
-  puts({ 'error' => "Hook configuration `nodes_registered` must be an integer (was: #{config['nodes_registered']})" }.to_json)
+if config['counter'].to_i.to_s != config['counter'].to_s
+  puts({ 'error' => "Hook configuration `counter` must be an integer (was: #{config['counter']})" }.to_json)
   exit 1
+elsif policy != config['policy']
+  output = {'output' => "No match for policy '#{policy}' found in hook; skipping"}
 else
-  policy_counter = config['nodes_registered'].to_i
+  policy_counter = config['counter'].to_i
   next_policy_counter = policy_counter + 1
   # This could just as easily call an external system to retrieve the node's
   # hostname0.
 
-  api_url = "http://commander.bellevuelab.isus.emc.com/hubot/vm/status"
+  api_url = "http://commander.bellevuelab.isus.emc.com/hubot/vm/complete"
   # req = Net::HTTP::Post.new uri.path
-  api_payload = {"status" => "We have found a new vm. It was created by @#{username}."}
+  api_payload = {"user" => username, "ipaddr" => ipaddress}
 
   # res = Net::HTTP.start(uri.host, uri.port) do |http|
   #   http.request req
@@ -33,7 +39,7 @@ else
       'hook' => {
           'configuration' => {
               'update' => {
-                  'nodes_registered' => next_policy_counter
+                  'counter' => next_policy_counter
               }
           }
       }
