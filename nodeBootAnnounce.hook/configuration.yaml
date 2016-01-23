@@ -1,0 +1,5 @@
+---
+counter:
+  decription: "The number of machines that have booted via iPXE"
+  default: 0
+  required: true
