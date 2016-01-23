@@ -1,0 +1,59 @@
+#!/usr/bin/env ruby
+require 'json'
+require 'rest_client'
+
+input = STDIN.read
+STDIN.close_read
+
+input = JSON.parse(input)
+config = input['hook']['configuration']
+username = input['node']['facts']['user']
+
+if config['nodes_bound'].to_i.to_s != config['nodes_bound'].to_s
+  puts({ 'error' => "Hook configuration `nodes_bound` must be an integer (was: #{config['nodes_bound']})" }.to_json)
+  exit 1
+else
+  policy_counter = config['nodes_bound'].to_i
+  next_policy_counter = policy_counter + 1
+  # This could just as easily call an external system to retrieve the node's
+  # hostname0.
+
+  api_url = "http://commander.bellevuelab.isus.emc.com/hubot/node/status"
+  # req = Net::HTTP::Post.new uri.path
+  if config['node-type'] == "physical"
+    # Set payload to physcial stats
+    # user
+    username = "None"
+    # status
+    status = "The host os will be applied via the #{input['policy']['name']} policy!"
+    
+  elsif config['node-type'] == "virtual"
+    # Set payload to virtual stats
+    # user - already set
+    # status
+    status = "The vm os will be applied via the #{input['policy']['name']} policy!"
+  else
+    # Bad node type, send out error
+    puts({ 'error' => " Hook configuration `node-type` is invalid type; must be either physical or virtual" }.to_json)
+    exit 1
+  
+  # nodeState - determined by event itself
+  nodeState = "bound"
+  # Build packet
+  api_payload = {"user" => username, "status" => status, "state" => nodeState, "node-type" => config['node-type']}
+
+  # Send packet to hubot
+  req = RestClient::Request.execute( method: :post, url: api_url, verify_ssl: false, payload: api_payload, headers: { content_type: 'application/json'})
+
+  output = {
+      'hook' => {
+          'configuration' => {
+              'update' => {
+                  'nodes_registered' => next_policy_counter
+              }
+          }
+      }
+  }
+end
+
+puts output.to_json
