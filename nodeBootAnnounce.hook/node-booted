@@ -1,0 +1,40 @@
+#!/usr/bin/env ruby
+require 'json'
+require 'net/http'
+require 'rest_client'
+
+input = STDIN.read
+STDIN.close_read
+
+input = JSON.parse(input)
+config = input['hook']['configuration']
+
+if config['nodes-booted'].to_i.to_s != config['nodes-booted'].to_s
+  puts({ 'error' => "Hook configuration `nodes-booted` must be an integer (was: #{config['nodes-booted']})" }.to_json)
+  exit 1
+else
+  policy_counter = config['nodes-booted'].to_i
+  next_policy_counter = policy_counter + 1
+
+  # Set url
+  api_url = "http://commander.bellevuelab.isus.emc.com/hubot/node/status"
+
+  # Build packet
+  api_payload = {"user" => "None", "status" => "A node has booted to razor via iPXE. Sending out the probe...", "state" => "booted", "node-type" => "None"}
+
+  # Send packet to hubot
+  req = RestClient::Request.execute( method: :post, url: api_url, verify_ssl: false, payload: api_payload, headers: { content_type: 'application/json'})
+
+  # Output to server
+  output = {
+      'hook' => {
+          'configuration' => {
+              'update' => {
+                  'nodes_registered' => next_policy_counter
+              }
+          }
+      }
+  }
+end
+
+puts output.to_json

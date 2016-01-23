@@ -1,9 +1,0 @@
----
-policy:
-  description: "The name of the policy"
-  required: true
-
-counter:
-  description: "The number of nodes on the policy"
-  default: 1
-  required: true
