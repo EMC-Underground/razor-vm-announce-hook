@@ -23,20 +23,24 @@ else
   if config['node-type'] == "physical"
     # Set payload to physcial stats
     # user
+    username = "None"
     # status
-    # nodeState
+    status = "We have a new host node!"
+    
   elsif config['node-type'] == "virtual"
     # Set payload to virtual stats
-    # user
+    # user - already set
     # status
-    # nodeState
+    status = "We got a new vm!"
   else
     # Bad node type, send out error
     puts({ 'error' => " Hook configuration `node-type` is invalid type; must be either physical or virtual" }.to_json)
     exit 1
   
+  # nodeState - determined by event itself
+  nodeState = "registered"
   # Build packet
-  api_payload = {"user" => user, "status" => status, "state" => nodeState, "node-type" => config['node-type']}
+  api_payload = {"user" => username, "status" => status, "state" => nodeState, "node-type" => config['node-type']}
 
   # Send packet to hubot
   req = RestClient::Request.execute( method: :post, url: api_url, verify_ssl: false, payload: api_payload, headers: { content_type: 'application/json'})
