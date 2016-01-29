@@ -36,7 +36,8 @@ else
     # Bad node type, send out error
     puts({ 'error' => " Hook configuration `node-type` is invalid type; must be either physical or virtual" }.to_json)
     exit 1
-  
+  end
+
   # nodeState - determined by event itself
   nodeState = "registered"
   # Build packet
