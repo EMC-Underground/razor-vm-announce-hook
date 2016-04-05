@@ -11,20 +11,20 @@ input = JSON.parse(input)
 config = input['hook']['configuration']
 node = input['node']
 ipaddress = node['facts']['ipaddress_eno16777984']
-node-type = ""
+nodeType = ""
 
 # grab the node's type and translate it
 case node['facts']['is_virtual']
 when true
- node-type = "virtual"
+ nodeType = "virtual"
 when false
- node-type = "physical"
+ nodeType = "physical"
 end
 
 if config['nodes_installed'].to_i.to_s != config['nodes_installed'].to_s
   puts({ 'error' => "Hook configuration `nodes_installed` must be an integer (was: #{config['nodes_installed']})" }.to_json)
   exit 1
-elsif config['node-type'] != node-type
+elsif config['node-type'] != nodeType
   exit 0
 else
   policy_counter = config['nodes_installed'].to_i
