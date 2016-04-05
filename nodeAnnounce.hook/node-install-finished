@@ -9,11 +9,21 @@ STDIN.close_read
 
 input = JSON.parse(input)
 config = input['hook']['configuration']
-ipaddress = input['node']['facts']['ipaddress_eno16777984']
+node = input['node']
+ipaddress = node['facts']['ipaddress_eno16777984']
+
+# grab the node's type and translate it
+case node['facts']['is_virtual']
+when "true"
+ node-type = "virtual"
+when "false"
+ node-type = "physical"
 
 if config['nodes_installed'].to_i.to_s != config['nodes_installed'].to_s
   puts({ 'error' => "Hook configuration `nodes_installed` must be an integer (was: #{config['nodes_installed']})" }.to_json)
   exit 1
+elsif config['node-type'] != node-type
+  exit 0
 else
   policy_counter = config['nodes_installed'].to_i
   next_policy_counter = policy_counter + 1
@@ -28,7 +38,7 @@ else
     username = "None"
     # status
     status = "The host os is now installed. It's IP is #{ipaddress}."
-    
+
   elsif config['node-type'] == "virtual"
     # Set payload to virtual stats
     # user
@@ -38,7 +48,7 @@ else
   else
     # Bad node type, send out error
     puts({ 'error' => " Hook configuration `node-type` is invalid type; must be either physical or virtual" }.to_json)
-    exit 1  
+    exit 1
   end
 
   # nodeState - determined by event itself
