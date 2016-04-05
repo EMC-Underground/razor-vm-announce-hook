@@ -18,4 +18,4 @@ The commands to create the hooks are as follows:
 `razor create-hook --name <some_name> --hook-type nodeBootAnnounce`
 
 - ####getMachineName
-`razor create-hook --name <some_name> --hook-type nodeBootAnnounce --configuration policy=<policy_name>`
+`razor create-hook --name <some_name> --hook-type getMachineName --configuration policy=<policy_name>`

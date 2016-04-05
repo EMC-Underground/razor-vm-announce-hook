@@ -55,9 +55,6 @@ else
   # Build packet
   api_payload = {"user" => username, "status" => status, "state" => nodeState, "node-type" => config['node-type']}
 
-  # Send packet to hubot
-  req = RestClient::Request.execute( method: :post, url: api_url, verify_ssl: false, payload: api_payload, headers: { content_type: 'application/json'})
-
   output = {
       'hook' => {
           'configuration' => {
@@ -67,6 +64,8 @@ else
           }
       }
   }
+  # Send packet to hubot
+  req = RestClient::Request.execute( method: :post, url: api_url, verify_ssl: false, payload: api_payload, headers: { content_type: 'application/json'})
 end
 
 puts output.to_json
