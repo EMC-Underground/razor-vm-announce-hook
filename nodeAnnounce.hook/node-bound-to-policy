@@ -16,6 +16,7 @@ when "true"
   node-type = "virtual"
 when "false"
   node-type = "physical"
+end
 
 if config['nodes_bound'].to_i.to_s != config['nodes_bound'].to_s
   puts({ 'error' => "Hook configuration `nodes_bound` must be an integer (was: #{config['nodes_bound']})" }.to_json)
