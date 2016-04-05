@@ -15,9 +15,9 @@ node-type = ""
 
 # grab the node's type and translate it
 case node['facts']['is_virtual']
-when "true"
+when true
  node-type = "virtual"
-when "false"
+when false
  node-type = "physical"
 end
 
