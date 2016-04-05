@@ -7,10 +7,22 @@ STDIN.close_read
 
 input = JSON.parse(input)
 config = input['hook']['configuration']
+node = input['node']
+nodeType = ""
+
+# grab the node's type and translate it
+case node['facts']['is_virtual']
+when true
+ nodeType = "virtual"
+when false
+ nodeType = "physical"
+end
 
 if config['nodes_registered'].to_i.to_s != config['nodes_registered'].to_s
   puts({ 'error' => "Hook configuration `nodes_registered` must be an integer (was: #{config['nodes_registered']})" }.to_json)
   exit 1
+elsif config['node-type'] != nodeType
+  exit 0
 else
   policy_counter = config['nodes_registered'].to_i
   next_policy_counter = policy_counter + 1
@@ -25,7 +37,7 @@ else
     username = "None"
     # status
     status = "We have a new host node!"
-    
+
   elsif config['node-type'] == "virtual"
     # Set payload to virtual stats
     # user

@@ -9,11 +9,23 @@ STDIN.close_read
 
 input = JSON.parse(input)
 config = input['hook']['configuration']
-ipaddress = input['node']['facts']['ipaddress_eno16777984']
+node = input['node']
+ipaddress = node['facts']['ipaddress_eno16777984']
+nodeType = ""
+
+# grab the node's type and translate it
+case node['facts']['is_virtual']
+when true
+ nodeType = "virtual"
+when false
+ nodeType = "physical"
+end
 
 if config['nodes_installed'].to_i.to_s != config['nodes_installed'].to_s
   puts({ 'error' => "Hook configuration `nodes_installed` must be an integer (was: #{config['nodes_installed']})" }.to_json)
   exit 1
+elsif config['node-type'] != nodeType
+  exit 0
 else
   policy_counter = config['nodes_installed'].to_i
   next_policy_counter = policy_counter + 1
@@ -28,7 +40,7 @@ else
     username = "None"
     # status
     status = "The host os is now installed. It's IP is #{ipaddress}."
-    
+
   elsif config['node-type'] == "virtual"
     # Set payload to virtual stats
     # user
@@ -38,16 +50,13 @@ else
   else
     # Bad node type, send out error
     puts({ 'error' => " Hook configuration `node-type` is invalid type; must be either physical or virtual" }.to_json)
-    exit 1  
+    exit 1
   end
 
   # nodeState - determined by event itself
   nodeState = "installed"
   # Build packet
   api_payload = {"user" => username, "status" => status, "state" => nodeState, "node-type" => config['node-type']}
-
-  # Send packet to hubot
-  req = RestClient::Request.execute( method: :post, url: api_url, verify_ssl: false, payload: api_payload, headers: { content_type: 'application/json'})
 
   output = {
       'hook' => {
@@ -58,6 +67,8 @@ else
           }
       }
   }
+  # Send packet to hubot
+  req = RestClient::Request.execute( method: :post, url: api_url, verify_ssl: false, payload: api_payload, headers: { content_type: 'application/json'})
 end
 
 puts output.to_json

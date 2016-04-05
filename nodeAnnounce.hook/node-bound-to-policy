@@ -7,10 +7,22 @@ STDIN.close_read
 
 input = JSON.parse(input)
 config = input['hook']['configuration']
+node = input['node']
+nodeType = ""
+
+# grab the node's type and translate it
+case node['facts']['is_virtual']
+when true
+  nodeType = "virtual"
+when false
+  nodeType = "physical"
+end
 
 if config['nodes_bound'].to_i.to_s != config['nodes_bound'].to_s
   puts({ 'error' => "Hook configuration `nodes_bound` must be an integer (was: #{config['nodes_bound']})" }.to_json)
   exit 1
+elsif config['node-type'] != nodeType
+  exit 0
 else
   policy_counter = config['nodes_bound'].to_i
   next_policy_counter = policy_counter + 1
@@ -25,7 +37,7 @@ else
     username = "None"
     # status
     status = "The host os will be applied via the #{input['policy']['name']} policy!"
-    
+
   elsif config['node-type'] == "virtual"
     # Set payload to virtual stats
     # user
@@ -43,9 +55,6 @@ else
   # Build packet
   api_payload = {"user" => username, "status" => status, "state" => nodeState, "node-type" => config['node-type']}
 
-  # Send packet to hubot
-  req = RestClient::Request.execute( method: :post, url: api_url, verify_ssl: false, payload: api_payload, headers: { content_type: 'application/json'})
-
   output = {
       'hook' => {
           'configuration' => {
@@ -55,6 +64,8 @@ else
           }
       }
   }
+  # Send packet to hubot
+  req = RestClient::Request.execute( method: :post, url: api_url, verify_ssl: false, payload: api_payload, headers: { content_type: 'application/json'})
 end
 
 puts output.to_json
