@@ -11,6 +11,7 @@ input = JSON.parse(input)
 config = input['hook']['configuration']
 node = input['node']
 ipaddress = node['facts']['ipaddress_eno16777984']
+node-type = ""
 
 # grab the node's type and translate it
 case node['facts']['is_virtual']

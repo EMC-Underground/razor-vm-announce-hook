@@ -8,6 +8,7 @@ STDIN.close_read
 input = JSON.parse(input)
 config = input['hook']['configuration']
 node = input['node']
+node-type = ""
 
 # grab the node's type and translate it
 case node['facts']['is_virtual']
